@@ -1,20 +1,19 @@
 
-
 #include <iostream>
 using namespace std;
 
 struct player
 {
     int number;
-    char name[30];
+    string name;
     int age;
-
-
 };
-void play(char field[3][3], int length, struct player* spieler);
+
+void play(char field[3][3], struct player* spieler);
 void input_player(struct player* spieler);
 bool draw_game(char field[3][3]);
 void drewField(char* p_field);
+bool checkWin(char field[3][3]);
 
 int main()
 {
@@ -29,27 +28,34 @@ int main()
     struct player spieler[2];
     input_player(spieler);
 
-    play(field, length, spieler);
+    play(field, spieler);
+
+    return 0;
 
 }
 
 
-void input_player(struct player* spieler)
+void input_player(struct player spieler[])
 {
-    for (int i = 0;i < 2;i++)
+    for (int i = 0; i < 2; i++)
     {
-        cout << " \nYou are player (1) or (2)";
-        cin >> spieler->number;
+        cout << " \nYou are player (1) or (2)? ";
+        cin >> spieler[i].number;
+
+        if (spieler[i].number != 1 && spieler[i].number != 2)
+        {
+            cout << "Invalid, try again!!\n";
+            i--;
+            continue;
+        }
+
         cout << "Enter your name: ";
-        cin >> spieler->name;
-        cout << "Enter your age : ";
-        cin >> spieler->age;
-        spieler++;
-
+        cin >> spieler[i].name;
+        cout << "Enter your age: ";
+        cin >> spieler[i].age;
     }
-
-
 }
+
 void drewField(char* p_field)
 {
     cout << "---------------\n";
@@ -66,14 +72,23 @@ void drewField(char* p_field)
 
     }
 }
-bool checkWin(char field[3][3])
+bool checkWin(char field[3][3])// rules
 {
-    for (int i = 0;i < 3;i++)
+    for (int z = 0;z < 3;z++)
     {
-        if (field[i][0] || field[i][1] || field[i][2]) return true;
-        if (field[0][i] || field[1][i] || field[2][i]) return true;
-       
+        for (int s = 0;s < 3;s++)
+        {
+            if (field[z][0] == 'X' && field[z][1] == 'X' && field[z][2] == 'X')return true;
+            else if (field[0][s] == 'X' && field[1][s] == 'X' && field[2][s] == 'X')return true;
+            else  if (field[0][0] == 'X' && field[1][1] == 'X' && field[2][2] == 'X')return true;
+            else  if (field[0][2] == 'X' && field[1][1] == 'X' && field[2][0] == 'X')return true;
+            else if (field[z][0] == 'O' && field[z][1] == 'O' && field[z][2] == 'O')return true;
+            else if (field[0][s] == 'O' && field[1][s] == 'O' && field[2][s] == 'O')return true;
+            else if (field[0][0] == 'O' && field[1][1] == 'O' && field[2][2] == 'O')return true;
+            else if (field[0][2] == 'O' && field[1][1] == 'O' && field[2][0] == 'O')return true;
+        }
     }
+
     return false;
 }
 bool draw_game(char field[3][3])
@@ -91,14 +106,20 @@ bool draw_game(char field[3][3])
     return true;
 }
 
-void play(char field[3][3], int length, struct player* spieler)
+void play(char field[3][3], struct player spieler[2])
 {
-    system("cls");  // Beachte: Funktioniert nur unter Windows
-    drewField(&field[0][0]);
 
+    system("cls"); // to clear the screen
+    cout << "\033[6;31;43m Welcome to TICTACTOE\033[0m\n\n"; //for the color 
+    drewField(&field[0][0]);
+    int i = 0;
+    /*if (spieler[i].number == 2)
+    {
+        i++;
+    }*/
     int row, column;
     bool draw = false;
-
+    
     while (true)
     {
         draw = draw_game(field);
@@ -107,11 +128,9 @@ void play(char field[3][3], int length, struct player* spieler)
             cout << "DRAW!!\n";
             break;
         }
-        
-
-        cout << "Player " << spieler->number << " enter the row: ";
+        cout << "Player " << spieler[i].number << " enter the row: ";
         cin >> row;
-        cout << "Player " << spieler->number << " enter the column: ";
+        cout << "Player " << spieler[i].number << " enter the column: ";
         cin >> column;
 
         if (row >= 3 || row < 0 || column >= 3 || column < 0)
@@ -126,16 +145,28 @@ void play(char field[3][3], int length, struct player* spieler)
             continue;
         }
 
-        if (spieler->number == 1)
+        if (spieler[i].number == 1)
         {
             field[row][column] = 'X';
-            spieler->number = 2;
+            if (checkWin(field))
+            {
+                cout <<endl<< spieler[i].name << "  has won!!";
+                break;
+            }
+            i++;
+
         }
-        else if (spieler->number == 2)
+        else if (spieler[i].number == 2)
         {
             field[row][column] = 'O';
-            spieler->number = 1;
+            if (checkWin(field))
+            {
+                cout <<endl << spieler[i].name << "  has won!!";
+                break;
+            }
+            i--;
         }
+   
         drewField(&field[0][0]);
 
     }
